@@ -114,10 +114,10 @@ void plan(void)
 	glPushMatrix();
 
     glBegin(GL_QUADS);
-    glVertex3f(500.0f, -10.0f, -500.0f);
-    glVertex3f(-500.0f, -10.0f, -500.0f);
-    glVertex3f(-500.0f, -10.0f, 500.0f);
-    glVertex3f(500.0f, -10.0f, 500.0f);
+    glVertex3f(50.0f, -1.5f, -50.0f);
+    glVertex3f(-50.0f, -1.5f, -50.0f);
+    glVertex3f(-50.0f, -1.5f, 50.0f);
+    glVertex3f(50.0f, -1.5f, 50.0f);
     glEnd();
 	glPopMatrix();
 }
@@ -156,6 +156,29 @@ void myInit()
 float angleX = 0.0f;
 float angleZ = 0.0f;
 
+static float eyeX = 0.0, eyeY = 0.0, eyeZ = 7.0;
+static float centerX = 0.0, centerY = 0.0, centerZ = 0.0;
+
+void CALLBACK SpecialUp(void)
+{
+    eyeY += 0.2;
+}
+
+void CALLBACK SpecialDown(void)
+{
+    eyeY -= 0.2;
+}
+
+void CALLBACK SpecialLeft(void)
+{
+    eyeX -= 0.2;
+}
+
+void CALLBACK SpecialRight(void)
+{
+    eyeX += 0.2;
+}
+
 void rotateX(float angle) {
     angleX += angle;
     if (angleX > 360.0f) {
@@ -172,23 +195,117 @@ void rotateZ(float angle) {
 
 void keyboard(unsigned char key, int x, int y) {
     switch (key) {
+    case 'a':
+        eyeY += 0.2;
+        break;
+    case 'q':
+        eyeY -= 0.2;
+        break;
+    case 'f':
+        eyeX -= 0.2;
+        break;
+    case 'e':
+        eyeX += 0.2;
+        break;
     case 's':
         rotateX(5.0f);
         break;
     case 'w':
-        rotateX(-5.0f);
-        break;
-    case 'd':
-        rotateZ(5.0f);
-        break;
-    case 'a':
         rotateZ(-5.0f);
         break;
     }
     glutPostRedisplay();
 }
 
+
 void fantana()
+{
+    glPushMatrix();
+    // Draw a cylinder using GLUT
+    GLUquadricObj* quadric = gluNewQuadric();
+    gluCylinder(quadric, 0.6, 0.6, 1.0, 32, 32);
+    glPopMatrix();
+
+    glPushMatrix();
+    // Disk
+    GLUquadricObj* disk = gluNewQuadric();
+    gluDisk(disk, 0.0, 0.6, 32, 1);
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(0.65, 0.0, 0.0);
+    // Cylinder 2
+    GLUquadricObj* quadric1 = gluNewQuadric();
+    gluCylinder(quadric1, 0.1, 0.1, 2.5, 32, 32);
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(0.75, 0.0, 2.5);
+    glRotatef(270.0f, 0.0, 1.0, 0.0);
+    // Cylinder 3
+    GLUquadricObj* quadric2 = gluNewQuadric();
+    gluCylinder(quadric2, 0.05, 0.05, 0.8, 32, 32);
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(0.0, 0.0, 1.3);
+    glRotatef(90.0f, 0.0, 0.0, 1.0);
+    // Bucket
+    GLUquadricObj* quadric3 = gluNewQuadric();
+    gluCylinder(quadric3, 0.11, 0.17, 0.3, 64, 64);
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(0.0, 0.0, 1.3);
+    gluDisk(quadric3, 0.0, 0.11, 64, 1);
+    glPopMatrix();
+
+    // Define control points for a Bezier curve that describes the shape of the handle
+    GLdouble ctrlpoints[4][3] = {
+        {0.02, 0.0, 0.0},
+        {0.0, 0.2, 0.0},
+        {0.35, 0.3, 0.0},
+        {0.38, 0.0, 0.0}
+    };
+    glPushMatrix();
+    // Maner galeata
+    glTranslatef(-0.2, 0.0, 1.6);
+    glRotatef(90.0f, 1.0, 0.0, 0.0);
+    glMap1d(GL_MAP1_VERTEX_3, 0.0, 1.0, 3, 4, &ctrlpoints[0][0]);
+    glEnable(GL_MAP1_VERTEX_3);
+    glBegin(GL_LINE_STRIP);
+    for (int i = 0; i <= 30; ++i) {
+        glEvalCoord1f((GLfloat)i / 30.0);
+    }
+    glEnd();
+    glDisable(GL_MAP1_VERTEX_3);
+    glPopMatrix();
+
+    // Sfoara maner galeata
+    GLdouble ctrlpoints2[4][3] = {
+        {1.0, 0.0, 0.0},
+        {1.2, 0.0, 0.0},
+        {1.4, 0.0, 0.0},
+        {1.7, 0.0, 0.0}
+    };
+
+    glPushMatrix();
+    glTranslatef(0.0, 0.0, 3.5);
+    glRotatef(90.0f, 0.0, 1.0, 0.0);
+    glMap1d(GL_MAP1_VERTEX_3, 0.0, 1.0, 3, 4, &ctrlpoints2[0][0]);
+    glEnable(GL_MAP1_VERTEX_3);
+    glBegin(GL_LINE_STRIP);
+    for (int i = 0; i <= 10; ++i) {
+        glEvalCoord1f((GLfloat)i / 10.0);
+    }
+    glEnd();
+    glDisable(GL_MAP1_VERTEX_3);
+    glPopMatrix();
+
+    gluDeleteQuadric(quadric);
+}
+
+void fantanaTextura()
 {
 	glPushMatrix();
     glBindTexture(GL_TEXTURE_2D, textureId2);
@@ -291,17 +408,30 @@ void fantana()
     gluDeleteQuadric(quadric);
 }
 
+void drawText(const char* text, float x, float y, float z)
+{
+    glRasterPos3f(x, y, z);
+    for (const char* c = text; *c != '\0'; c++)
+    {
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);  // Updates the position
+    }
+}
+
+
 void display()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
     GLfloat matUmbra[4][4];
 //oricare trei puncte din plan în sens CCW
-	GLfloat puncte[3][3] = {{-50.0f, -9.9f, -50.0f},
-							{-50.0, -9.9f, 50.0},
-							{50.0f, -9.9f, 50.0f}};
+	GLfloat puncte[3][3] = {{-50.0f, -0.0f, -50.0f},
+							{-50.0, -0.0f, 50.0},
+							{50.0f, -0.0f, 50.0f}};
 //determinã matricea pentru calcularea umbrei	
 	MatriceUmbra(puncte, pozSursa, matUmbra);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    gluLookAt(eyeX, eyeY, eyeZ, centerX, centerY, centerZ, 0.0, 1.0, 0.0);
 //salveaza starea matricei de modelare-vizualizare si reprezintã cubul rotit
 	glPushMatrix();
 	glLightfv(GL_LIGHT0, GL_POSITION, pozSursa);
@@ -314,12 +444,18 @@ void display()
     glRotatef(angleX, 1.0, 0.0, 0.0); // Rotate around X-axis
     glRotatef(angleZ, 0.0, 0.0, 1.0); // Rotate around Z-axis
 
-	fantana();
+	fantanaTextura();
 	glPopMatrix();
+
+    glColor3f(0.0f, 0.0f, 0.0f);  // Set the text color
+    drawText("OLARIU DANIEL", -0.35f, -1.0f, 3.0f);
 
     glPushAttrib(GL_LIGHTING_BIT);
     glDisable(GL_LIGHTING);
     glPushMatrix();
+    glTranslatef(0.0, -1.3, -7.0);
+    glRotatef(180.0f, 0.0, 1.0, 0.0); // Rotate around X-axis
+    glRotatef(180.0f, 0.0, 0.0, 1.0); // Rotate around X-axis
     //apoi se înmulteste matricea curentã cu matricea de umbrire
     glMultMatrixf((GLfloat*)matUmbra);
     //si cu cea de rotaþie
